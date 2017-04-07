@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bcampbell/fuzzytime"
+	"html/template"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -66,5 +68,17 @@ func main() {
 }
 
 func Start(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Timestamp Microservice")
+	Render(w, "index.html")
+}
+
+func Render(w http.ResponseWriter, tmpl string) {
+	tmpl = fmt.Sprintf("public/%s", tmpl)
+	t, err := template.ParseFiles(tmpl)
+	if err != nil {
+		log.Print("Template parsing error: ", err)
+	}
+	err = t.Execute(w, "")
+	if err != nil {
+		log.Print("Template executing error: ", err)
+	}
 }
