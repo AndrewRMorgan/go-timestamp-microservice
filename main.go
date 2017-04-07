@@ -22,9 +22,26 @@ func Router(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path[1:] == "" || r.URL.Path[1:] == "favicon.ico" {
 		Start(w, r)
 	} else if r.URL.Path[1:] != "" {
-		unix, natural := convert(r.URL.Path[1:])
+		//unix, natural := convert(r.URL.Path[1:])
+    var natural string
+    var unix int64
 
-		times := Times{unix, natural}
+    i, err := strconv.ParseInt(r.URL.Path[1:], 10, 64)
+
+  	if err != nil {
+  		n, _ := url.QueryUnescape(r.URL.Path[1:])
+  		n2, _, _ := fuzzytime.Extract(n)
+
+      if n2.ISOFormat() == "" {
+        times := Times{nil, nil}
+      } else {
+        unix, natural = naturalDate(n2)
+        times := Times{unix, natural}
+      }
+  	} else {
+      unix, natural = unixDate(i)
+      times := Times{unix, natural}
+  	}
 
 		js, err := json.Marshal(times)
 		if err != nil {
@@ -45,7 +62,7 @@ func main() {
 func Start(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Timestamp Microservice")
 }
-
+/*
 func convert(s string) (int64, string) {
 
   var natural string
@@ -54,24 +71,32 @@ func convert(s string) (int64, string) {
   i, err := strconv.ParseInt(s, 10, 64)
 
 	if err != nil {
-		n, _ := url.QueryUnescape(i)
-		n, _ = fuzzytime.Extract(n)
-		n, _ = time.Parse(time.RFC3339, n)
-		unix = natToUnix(n)
-		natural = n.Format("January 2, 2006")
+		n, _ := url.QueryUnescape(s)
+		n2, _, _ := fuzzytime.Extract(n)
+
+    if n2.ISOFormat() == "" {
+      return nil, nil
+    }
+
+    unix, natural = natural(n2)
+    return unix, natural
 	} else {
-		unix = i
-		natural = unixToNat(unix)
+    unix, natural = unix(i)
+    return unix, natural
 	}
-	return unix, natural
+}
+*/
+
+func naturalDate(s string) (int64, string) {
+  n, _ := time.Parse(time.RFC3339, s.ISOFormat())
+  unix = n.Unix()
+  natural = n.Format("January 2, 2006")
+  return unix, natural
 }
 
-func unixToNat(u int64) time.Time {
-	s := time.Unix(u, 0)
-	return s
-}
-
-func natToUnix(n string) int64 {
-	u := n.Unix()
-	return u
+func unixDate(i int64) (int64, string) {
+  unix = i
+  n := time.Unix(unix, 0)
+  natural = n.String()
+  return unix, natural
 }
