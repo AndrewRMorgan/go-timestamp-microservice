@@ -1,0 +1,11 @@
+{
+	"ImportPath": "timestamp-microservice",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
+	"Deps": [
+		{
+			"ImportPath": "github.com/bcampbell/fuzzytime",
+			"Rev": "295457da2b796c08de7cb4a2ed68dc98978841c4"
+		}
+	]
+}
