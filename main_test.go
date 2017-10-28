@@ -15,7 +15,6 @@ func TestRouter(t *testing.T) {
 		{"December%2015,%202015", `{"unix":1450137600,"natural":"December 15, 2015"}`},
 		{"January 27, 1988", `{"unix":570240000,"natural":"January 27, 1988"}`},
 	}
-	//expected := `{"unix":1450137600,"natural":"December 15, 2015"}`
 
 	for _, table := range tables {
 		req, _ := http.NewRequest("GET", "/"+table.sent, nil)
