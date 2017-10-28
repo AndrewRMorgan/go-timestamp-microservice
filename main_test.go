@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestRouter(t *testing.T) {
+func TestGetTimestamp(t *testing.T) {
 	tables := []struct {
 		sent     string
 		expected string
@@ -20,9 +20,7 @@ func TestRouter(t *testing.T) {
 		req, _ := http.NewRequest("GET", "/"+table.sent, nil)
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			Router(w, r)
-		})
+		handler := http.HandlerFunc(getTimestamp)
 		handler.ServeHTTP(rr, req)
 		if rr.Body.String() != table.expected {
 			t.Errorf("The handler returned an unexpected body: Got %v but want %v",

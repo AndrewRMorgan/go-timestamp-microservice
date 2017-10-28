@@ -2,15 +2,13 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/bcampbell/fuzzytime"
-	"html/template"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/bcampbell/fuzzytime"
 )
 
 type Times struct {
@@ -21,9 +19,19 @@ type Times struct {
 var natural string
 var unix int64
 
-func Router(w http.ResponseWriter, r *http.Request) {
+func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	http.HandleFunc("/", getTimestamp)
+	http.ListenAndServe(":"+port, nil)
+}
+
+func getTimestamp(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path[1:] == "" || r.URL.Path[1:] == "favicon.ico" {
-		Start(w, r)
+		index(w, r)
 	} else if r.URL.Path[1:] != "" {
 		var times = Times{}
 		i, err := strconv.ParseInt(r.URL.Path[1:], 10, 64)
@@ -57,28 +65,6 @@ func Router(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	http.HandleFunc("/", Router)
-	http.ListenAndServe(":"+port, nil)
-}
-
-func Start(w http.ResponseWriter, r *http.Request) {
-	Render(w, "index.html")
-}
-
-func Render(w http.ResponseWriter, tmpl string) {
-	tmpl = fmt.Sprintf("public/%s", tmpl)
-	t, err := template.ParseFiles(tmpl)
-	if err != nil {
-		log.Print("Template parsing error: ", err)
-	}
-	err = t.Execute(w, "")
-	if err != nil {
-		log.Print("Template executing error: ", err)
-	}
+func index(res http.ResponseWriter, req *http.Request) {
+	http.ServeFile(res, req, "./static/index.html")
 }
